@@ -84,18 +84,18 @@ c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, 
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "1F4E79", space: 6 } }, children: [new TextRun({ text: "Demo video: ", bold: true, size: 20 }), VIDEO ? link("Google Drive folder", VIDEO) : new TextRun({ text: "[insert video link]", size: 20, color: "C00000" })] }));
 
 c.push(H2("Abstract"));
-c.push(P("We upgrade an Assignment 1-style clothing classifier (5 classes: bottomwear, footwear, headwear, topwear, underwear) with two state-of-the-art components: an ImageNet-pretrained **ConvNeXt-Tiny** backbone and **SD-Turbo** text-to-image synthetic data for the weakest classes. On a held-out test set of 225 real images, ConvNeXt raises accuracy from **80.9 % to 98.2 %** (macro-F1 0.802 → 0.982). Adding 200 synthetic images raises it further to **98.7 %** (macro-F1 0.987), but slightly hurts the from-scratch CNN. We ship an interactive Gradio app (upload or camera → prediction → Grad-CAM → latency, 10–16 ms on a T4). Grad-CAM and a real-world phone test reveal a dataset shortcut that the test metric hides. Two further iterations with flat-lay synthetic data (v2, v3) keep catalog accuracy at 98.7–99.1 % and balance the real-world errors (macro-F1 0.72 → 0.75), but real-world accuracy stays at 75 %. The domain gap remains the main open problem."));
+c.push(P("We upgrade an Assignment 1-style clothing classifier (5 classes: bottomwear, footwear, headwear, topwear, underwear) with two state-of-the-art components: an ImageNet-pretrained **ConvNeXt-Tiny** backbone and **SD-Turbo** text-to-image synthetic data for the weakest classes. On a held-out test set of 225 real images, ConvNeXt raises accuracy from **80.9 % to 98.2 %** (macro-F1 0.802 → 0.982). Adding 200 synthetic images raises catalog accuracy further to **98.7 %** (macro-F1 0.987), but slightly hurts the from-scratch CNN and, as shown later, **lowers** accuracy on real phone photos (0.60 vs 0.75). We ship an interactive Gradio app (upload or camera → prediction → Grad-CAM → latency, 10–16 ms on a T4). Grad-CAM and a real-world phone test reveal a dataset shortcut that the test metric hides. Two further iterations with flat-lay synthetic data (v2, v3) keep catalog accuracy at 98.7–99.1 % and balance the real-world errors (macro-F1 0.72 → 0.75), but real-world accuracy stays at 75 %. The domain gap remains the main open problem."));
 
 // 1
 c.push(H1("1. Introduction"));
-c.push(P("Automatic garment categorization underpins e-commerce search, catalog tagging and recommendation. In Assignment 1 the task was solved with classical baselines. Here we keep the same topic and ask three questions. (1) How much does a modern pretrained backbone help over a CNN trained from scratch? (2) Can a one-step diffusion generator fill weak classes with useful synthetic data? (3) What does the model actually look at, and does its accuracy transfer to photos taken outside the catalog?"));
+c.push(P("Automatic garment categorization underpins e-commerce search, catalog tagging and recommendation. Assignment 1 required a baseline model (logistic regression, SVM or a simple CNN); here we re-implement a simple-CNN baseline of that type as the reference point. We keep the same topic and ask three questions. (1) How much does a modern pretrained backbone help over a CNN trained from scratch? (2) Can a one-step diffusion generator fill weak classes with useful synthetic data? (3) What does the model actually look at, and does its accuracy transfer to photos taken outside the catalog?"));
 
 // 2
 c.push(H1("2. Dataset Update"));
 c.push(P("**Source.** Fashion Product Images (Small), a public e-commerce catalog of 44,072 product photos (Hugging Face mirror ashraq/fashion-product-images-small). The dataset field subCategory is mapped to our classes: Shoes → footwear, Innerwear → underwear, Topwear → topwear, Headwear → headwear, Bottomwear → bottomwear."));
 c.push(P("**Size, balance and split.** 300 random images per class (headwear has only 293), 1,493 real images in total, split 70 / 15 / 15 per class with a fixed seed."));
 c.push(P("**Augmentation (train only).** Resize to 224×224, random horizontal flip, random rotation ±15°, color jitter (brightness, contrast and saturation 0.3), ImageNet normalization. Validation and test images are only resized and normalized."));
-c.push(P("**Synthetic share.** +100 headwear and +100 underwear images generated with SD-Turbo (Section 3.2). They make up 200 / 1,245 = **16.1 %** of the augmented training set and **0 %** of validation and test, so every reported metric is computed on real images only."));
+c.push(P("**Synthetic share.** +100 headwear and +100 underwear images generated with SD-Turbo (Section 3.2). In the first ablation they make up 200 / 1,245 = **16.1 %** of the training set (the final v3 model uses 36.5 %, see Section 6.1) and **0 %** of validation and test, so every reported metric is computed on real images only."));
 c.push(table([
   ["Class", "Train (real)", "Val", "Test", "Synthetic (train)"],
   ["bottomwear", 210, 45, 45, 0], ["footwear", 210, 45, 45, 0], ["headwear", 205, 43, 45, 100],
@@ -170,9 +170,9 @@ c.push(P("Grad-CAM [3] weights the last-stage feature maps by the gradient of th
 
 // 6
 c.push(H1("6. Demo Application"));
-c.push(P("The app is built with Gradio and runs in the Colab notebook (public share link). Flow: **upload or webcam → top-5 class probabilities → Grad-CAM overlay → latency (per request and running average) and environment** (GPU, torch and Python versions, model name). The interface states that part of the training data is synthetic and that uploads are not stored. End-to-end latency is **10–16 ms** per image on a Tesla T4 (torch 2.14, Python 3.13), including preprocessing and host-device transfer. A local version (app/app.py) runs on CPU or GPU."));
+c.push(P("The app is built with Gradio and runs in the Colab notebook (public share link). Flow: **upload or webcam → top-5 class probabilities → Grad-CAM overlay → latency (per request and running average) and environment** (GPU, torch and Python versions, model name). The interface states that part of the training data is synthetic and that uploads are not stored. End-to-end latency is **10–16 ms** per image on a Tesla T4 (torch 2.14, Python 3.13), including preprocessing and host-device transfer. A local version (app/app.py) runs on CPU or GPU. The **final deployed model is ConvNeXt v3** (Section 6.1); the screenshots below were taken earlier with convnext_tiny_syn and motivated the v2/v3 iterations."));
 c.push(img("app_beanie", 560));
-c.push(Caption("Figure 7. App on a real phone photo: knit beanie → headwear 100 %."));
+c.push(Caption("Figure 7. App on a real phone photo: knit beanie → headwear 100 % (screenshots in this section use convnext_tiny_syn, before the v2/v3 iterations of Section 6.1)."));
 c.push(P("**Real-world test** with our own phone photos (garments lying flat on a carpet, no person):"));
 c.push(table([
   ["Photo", "Prediction", "Correct?", "Grad-CAM focus"],
@@ -189,7 +189,7 @@ c.push(P("The T-shirt failure confirms the shortcut seen in Section 5. In the ca
 c.push(H2("6.1 Fixing the shortcut: flat-lay synthetic data (v2, v3)"));
 c.push(P("To act on this finding we built a small **real-world test set**: 20 phone photos (4 per class) of garments lying flat on carpets, floors and bedding, used **only for evaluation**. Caveat: apart from footwear, each class is one physical item photographed 4 times on different backgrounds, so the set holds about 8 distinct objects. Every error repeats across correlated photos, so these numbers are indicative, not statistically strong."));
 c.push(B("**v2:** +80 SD-Turbo **flat-lay** images for **every** class (8 item types × 10 colors × 8 indoor backgrounds; generating them for topwear only would create a new \"carpet → topwear\" shortcut) plus stronger augmentation (RandomResizedCrop 0.6–1.0, rotation ±20°, grayscale 10 %)."));
-c.push(B("**v3:** error analysis of v2 showed that ambiguous prompts (\"white undershirt\", \"boxer shorts\" in underwear; \"shorts\", \"leggings\" in bottomwear) overlap visually across classes. We regenerated those two classes with unambiguous items and softened the crop (scale 0.75–1.0)."));
+c.push(B("**v3:** error analysis of v2 showed that ambiguous prompts (\"white undershirt\", \"boxer shorts\" in underwear; \"shorts\", \"leggings\" in bottomwear) overlap visually across classes. We regenerated those two classes with unambiguous items and softened the crop (scale 0.75–1.0). **Final v3 training set:** 1,045 real + 200 product-style synthetic + 400 flat-lay synthetic (80 per class) = 1,645 images, of which **600 (36.5 %) are synthetic**. Validation and test remain 100 % real."));
 c.push(table([
   ["Model", "Catalog test acc", "Catalog macro-F1", "Real-world acc (n=20)", "Real-world macro-F1"],
   ["ConvNeXt", "0.982", "0.982", "0.75", "0.72"],
@@ -214,14 +214,14 @@ c.push(B("**Limitations.** Small test set (225 images) and a single seed, so dif
 // 8
 c.push(H1("8. Reproducibility"));
 c.push(N("Open the Colab notebook (link above) → Runtime → Change runtime type → **T4 GPU**."));
-c.push(N("Runtime → **Run all**. Cells: data download and split → baseline → ConvNeXt → SD-Turbo generation → ablation → Grad-CAM gallery and Gradio app. Total time is about 20 minutes."));
-c.push(N("Weights are saved to /content/{baseline_cnn, convnext_tiny, *_syn}.pt, and metrics and plots to /content/results. The last cell prints a public gradio.live link."));
-c.push(N("Local run: pip install -r requirements.txt; python app/app.py --weights convnext_tiny_syn.pt."));
+c.push(N("Runtime → **Run all**. Cells: data download and split → baseline → ConvNeXt → SD-Turbo generation → ablation → Grad-CAM gallery and Gradio app → flat-lay generation (v2) → v3 regeneration and training → real-world evaluation. Total time is about 35 minutes."));
+c.push(N("Weights are saved to /content/{baseline_cnn, convnext_tiny, *_syn, convnext_tiny_v2, convnext_tiny_v3}.pt, and metrics and plots to /content/results. The last cell prints a public gradio.live link."));
+c.push(N("Local run: pip install -r requirements.txt; python app/app.py --weights convnext_tiny_v3.pt (final model)."));
 c.push(P("Environment: Python 3.13, torch 2.14 (CUDA 13), timm, diffusers, grad-cam, gradio. Seeds: data split 42, generation seeds 0–99 and 1000–1099. Code, notebook, figures and metrics (results/summary.csv) are in the GitHub repository."));
 
 // 9
 c.push(H1("9. Conclusion"));
-c.push(P("Replacing the A1-style CNN with a pretrained ConvNeXt-Tiny is by far the most effective upgrade (+17 pp accuracy). One-step SD-Turbo synthetic data is cheap and gives a small further gain for the pretrained model on the targeted classes, but it does not help a model trained from scratch. Grad-CAM combined with a simple real-world test exposed a \"person visible → topwear\" shortcut that a 98.7 % test score hides. Two iterations of flat-lay synthetic data balanced the real-world errors (macro-F1 0.75) but did not close the ~24 pp gap between catalog and real-world accuracy. Real flat-lay photos and garment segmentation before classification are the most promising next steps."));
+c.push(P("Replacing the A1-style CNN with a pretrained ConvNeXt-Tiny is by far the most effective upgrade (+17 pp accuracy). One-step SD-Turbo synthetic data is cheap and gives a small gain for the pretrained model on the catalog test, but it does not help a model trained from scratch, and the first synthetic set even lowered real-world accuracy (0.75 → 0.60). Grad-CAM combined with a simple real-world test exposed a \"person visible → topwear\" shortcut that a 98.7 % test score hides. Two iterations of flat-lay synthetic data balanced the real-world errors (macro-F1 0.75) but did not close the ~24 pp gap between catalog and real-world accuracy. Real flat-lay photos and garment segmentation before classification are the most promising next steps."));
 
 // refs
 c.push(H1("References"));
