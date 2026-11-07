@@ -92,7 +92,7 @@ c.push(P("Automatic garment categorization underpins e-commerce search, catalog 
 
 // 2
 c.push(H1("2. Dataset Update"));
-c.push(P("**Source.** Fashion Product Images (Small), a public e-commerce catalog of 44,072 product photos (Hugging Face mirror ashraq/fashion-product-images-small). The dataset field subCategory is mapped to our classes: Shoes → footwear, Innerwear → underwear, Topwear → topwear, Headwear → headwear, Bottomwear → bottomwear."));
+c.push(P("**Source.** Fashion Product Images (Small), a public e-commerce catalog of 44,072 product photos (Hugging Face mirror ashraq/fashion-product-images-small). The dataset field subCategory is mapped to our classes: Shoes → footwear, Innerwear → underwear, Topwear → topwear, Headwear → headwear, Bottomwear → bottomwear. **Relation to A1:** training and fairly comparing SOTA models needs far more images than can be photographed by hand, so for A2 we use a large public catalog as the training source and keep **self-collected phone photos as an independent real-world test set** (Section 6.1). The topic and the 5 classes are unchanged."));
 c.push(P("**Size, balance and split.** 300 random images per class (headwear has only 293), 1,493 real images in total, split 70 / 15 / 15 per class with a fixed seed."));
 c.push(P("**Augmentation (train only).** Resize to 224×224, random horizontal flip, random rotation ±15°, color jitter (brightness, contrast and saturation 0.3), ImageNet normalization. Validation and test images are only resized and normalized."));
 c.push(P("**Synthetic share.** +100 headwear and +100 underwear images generated with SD-Turbo (Section 3.2). In the first ablation they make up 200 / 1,245 = **16.1 %** of the training set (the final v3 model uses 36.5 %, see Section 6.1) and **0 %** of validation and test, so every reported metric is computed on real images only."));
@@ -116,12 +116,16 @@ c.push(B("**Stage ratio 3:3:9:3**, similar to Swin-T, with an inverted-bottlenec
 c.push(B("**Large 7×7 depthwise kernels**, which mimic the large receptive field of self-attention windows."));
 c.push(B("**LayerNorm instead of BatchNorm, GELU instead of ReLU**, fewer activations and normalizations, and separate downsampling layers."));
 c.push(P("We use the Tiny variant (27.8 M parameters, ImageNet-1k weights from timm), replace the head with a 5-way linear layer, and fine-tune all layers with AdamW (lr 1e-4, weight decay 1e-4, cosine schedule, 6 epochs, batch size 32). **Why it helps our topic:** the baseline confuses small, low-texture garments (underwear vs headwear and topwear). Pretrained features already encode fabric texture, garment shape and part layout, which about 1k training images cannot teach from scratch."));
+c.push(img("diag_convnext", 600));
+c.push(Caption("Figure 2a. ConvNeXt-Tiny: stage layout (top) and a single ConvNeXt block (bottom)."));
 c.push(H2("3.2 SD-Turbo synthetic data (Adversarial Diffusion Distillation)"));
 c.push(P("SD-Turbo is Stable Diffusion 2.1 distilled with **Adversarial Diffusion Distillation (ADD)** [2]. A student network learns to produce an image in one denoising step. It is trained with (a) a score-distillation loss toward a frozen multi-step teacher and (b) an adversarial loss from a discriminator built on frozen ViT features. The result is a 512×512 image from a single forward pass, about 0.1 s on a T4."));
 c.push(P("We generate 100 images for each of the two weakest baseline classes from the template: "));
 c.push(CODE("\"e-commerce product photo of a {color} {item}, isolated on plain white"));
 c.push(CODE(" background, centered, studio lighting, no person\""));
-c.push(P("This uses 10 colors × 8 item types per class (e.g. baseball cap, beanie, fedora; boxer briefs, sports bra, thermal vest). Settings: 1 step, guidance 0, fixed seeds, resized to 256×256. **Why it helps:** it adds intra-class diversity (colors and sub-types) where the baseline recall is lowest, at almost zero cost and with no need to photograph or scrape new data."));
+c.push(P("This uses 10 colors × 8 item types per class (e.g. baseball cap, beanie, fedora; boxer briefs, sports bra, thermal vest). Settings: 1 step, guidance 0, fixed seeds, resized to 256×256. **Why it helps:** it adds intra-class diversity (colors and sub-types) where the baseline recall is lowest, at almost zero cost and with no need to photograph or scrape new data. Background on the Stable Diffusion family from Stability AI is covered by Neurohive [7]; SD-Turbo is its one-step distilled variant [2]."));
+c.push(img("diag_sdturbo", 600));
+c.push(Caption("Figure 2b. SD-Turbo: ADD training (top) and how we use the model to synthesize training images (bottom)."));
 
 // 4
 c.push(H1("4. Experiments"));
@@ -232,6 +236,7 @@ c.push(H1("References"));
   "P. Aggarwal, \"Fashion Product Images (Small),\" Kaggle; HF mirror: huggingface.co/datasets/ashraq/fashion-product-images-small.",
   "Neurohive, \"Convolutional Neural Network (CNN): How It Works, With PyTorch\" (ConvNeXt section), https://neurohive.io/en/guides/convolutional-neural-network/",
   "R. Wightman, \"PyTorch Image Models (timm),\" GitHub, 2019–2026.",
+  "Neurohive, \"Stability AI Introduces Stable Diffusion SDXL 1.0 Model,\" https://neurohive.io/en/news/stability-ai-introduces-stable-diffusion-sdxl-1-0-model/",
 ].forEach((r) => c.push(new Paragraph({ numbering: { reference: "ref", level: 0 }, children: [new TextRun({ text: r, size: 20 })], spacing: { after: 60 } })));
 
 // ---------- document ----------
