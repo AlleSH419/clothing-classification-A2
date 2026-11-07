@@ -1,0 +1,1 @@
+{"model": "baseline_cnn_syn", "test_acc": 0.8, "macro_f1": 0.791179501681998, "latency_ms": 0.8142900466918945, "train_time_s": 115.06734776496887, "params_M": 0.390661}

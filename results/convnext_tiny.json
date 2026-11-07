@@ -1,0 +1,1 @@
+{"model": "convnext_tiny", "test_acc": 0.9822222222222222, "macro_f1": 0.9822178304787, "latency_ms": 5.946183204650879, "train_time_s": 160.8687822818756, "params_M": 27.823973}
