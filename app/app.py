@@ -2,7 +2,7 @@
 
 Usage:
     pip install -r requirements.txt
-    python app/app.py --weights convnext_tiny_syn.pt
+    python app/app.py --weights convnext_tiny_v3.pt
 
 The weights file is produced by the Colab notebook (notebooks/clothing_A2.ipynb).
 """
@@ -31,7 +31,7 @@ def build(weights: str, device: str):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default="convnext_tiny_syn.pt")
+    ap.add_argument("--weights", default="convnext_tiny_v3.pt")
     ap.add_argument("--share", action="store_true")
     args = ap.parse_args()
 

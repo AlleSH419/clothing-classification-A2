@@ -55,7 +55,9 @@ Fashion Product Images (HF) ──► 5-class subset (300/class, 70/15/15 split)
 | Baseline CNN | real | 0.809 | 0.802 | 0.8 ms |
 | ConvNeXt-Tiny | real | **0.982** | **0.982** | 5.9 ms |
 | Baseline CNN | real + synthetic | 0.800 | 0.791 | 0.8 ms |
-| **ConvNeXt-Tiny** (app model) | real + synthetic | **0.987** | **0.987** | 6.8 ms |
+| ConvNeXt-Tiny | real + synthetic | **0.987** | **0.987** | 6.8 ms |
+| ConvNeXt-Tiny v2 | + flat-lay synthetic, strong aug | 0.991 | 0.991 | 7.8 ms |
+| **ConvNeXt-Tiny v3** (final model) | + cleaned flat-lay synthetic | 0.987 | 0.987 | 8.5 ms |
 
 Synthetic data helps the pretrained ConvNeXt (headwear errors 2 → 0, +0.45 pp accuracy) but not the from-scratch CNN (−1.1 pp). The CNN cannot bridge the domain gap between 512-px generated images and 60×80 catalog photos. With a single seed and 225 test images, both differences are within noise (1–2 images).
 
@@ -65,15 +67,15 @@ Training curves, confusion matrices, Grad-CAM examples and synthetic samples are
 
 ### Colab (recommended)
 1. Open the notebook in Colab: **Runtime → Change runtime type → T4 GPU**.
-2. **Runtime → Run all**. The cells run in this order: data → baseline → ConvNeXt → synthetic generation → ablation → Grad-CAM + app.
-3. The last cell prints a public `https://*.gradio.live` link (valid 72 h).
+2. **Runtime → Run all**. The cells run in this order: data → baseline → ConvNeXt → synthetic generation → ablation → Grad-CAM + app → flat-lay generation (v2) → v3 → real-world evaluation. The whole run takes about 35 minutes.
+3. The app cell prints a public `https://*.gradio.live` link (temporary). Set `MODEL_NAME = "convnext_tiny_v3"` in it to use the final model.
 
 ### Local
 ```bash
 pip install -r requirements.txt
-python app/app.py --weights convnext_tiny_syn.pt
+python app/app.py --weights convnext_tiny_v3.pt
 ```
-`convnext_tiny_syn.pt` is saved by the notebook in `/content/`. Download it from the Colab file panel.
+`convnext_tiny_v3.pt` is saved by the notebook in `/content/`. Download it from the Colab file panel.
 
 ## Repository structure
 
@@ -81,8 +83,8 @@ python app/app.py --weights convnext_tiny_syn.pt
 notebooks/clothing_A2.ipynb   full pipeline (Colab)
 app/app.py                    local Gradio app
 app/colab_app_cell.py         Grad-CAM gallery + Gradio app cell used in Colab
-results/                      plots, metrics, screenshots
-report/                       report (PDF)
+results/                      plots, metrics (summary.csv), app and real-world screenshots
+report/A2_Report.pdf          report
 ```
 
 ## Ethics

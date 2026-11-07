@@ -6,3 +6,15 @@ data_syn/
 *.pt
 *.pth
 .env
+# local working files (not part of the submission)
+report/build_report.js
+report/report_draft.md
+report/video_script.md
+report/*.docx
+results/screenshots/baseline_*
+results/screenshots/convnext_curves_colab.png
+results/screenshots/convnext_report.png
+results/screenshots/convnext_syn_curves.png
+results/screenshots/gradcam_examples.webp
+results/screenshots/synthetic_samples.webp
+results/screenshots/realworld_v2.png
