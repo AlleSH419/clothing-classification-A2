@@ -60,7 +60,7 @@ function table(rows, widths, { boldRows = [] } = {}) {
       tableHeader: i === 0,
       children: r.map((c, j) => new TableCell({
         width: { size: widths[j], type: WidthType.DXA }, borders,
-        shading: i === 0 ? { type: ShadingType.CLEAR, fill: "DCE6F1", color: "auto" } : undefined,
+        
         margins: { top: 50, bottom: 50, left: 90, right: 90 },
         children: [new Paragraph({
           alignment: j === 0 ? AlignmentType.LEFT : AlignmentType.CENTER,
@@ -81,7 +81,7 @@ c.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CEN
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "Student: " + STUDENT + "   ·   Instructor: Nurym Kaiyrkhan", size: 21 })] }));
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "GitHub: ", bold: true, size: 20 }), link(LINKS.github, LINKS.github)] }));
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "Colab notebook + app: ", bold: true, size: 20 }), link("Open in Google Colab", LINKS.colab)] }));
-c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 6 } }, children: [new TextRun({ text: "Demo video: ", bold: true, size: 20 }), VIDEO ? link("Google Drive folder", VIDEO) : new TextRun({ text: "[insert video link]", size: 20, color: "000000" })] }));
+c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: "Demo video: ", bold: true, size: 20 }), VIDEO ? link("Google Drive folder", VIDEO) : new TextRun({ text: "[insert video link]", size: 20, color: "000000" })] }));
 
 c.push(H2("Abstract"));
 c.push(P("We upgrade an Assignment 1-style clothing classifier (5 classes: bottomwear, footwear, headwear, topwear, underwear) with two state-of-the-art components: an ImageNet-pretrained **ConvNeXt-Tiny** backbone and **SD-Turbo** text-to-image synthetic data for the weakest classes. On a held-out test set of 225 real images, ConvNeXt raises accuracy from **80.9 % to 98.2 %** (macro-F1 0.802 → 0.982). Adding 200 synthetic images raises catalog accuracy further to **98.7 %** (macro-F1 0.987), but slightly hurts the from-scratch CNN and, as shown later, **lowers** accuracy on real phone photos (0.60 vs 0.75). We ship an interactive Gradio app (upload or camera → prediction → Grad-CAM → latency, 10–16 ms on a T4). Grad-CAM and a real-world phone test reveal a dataset shortcut that the test metric hides. Two further iterations with flat-lay synthetic data (v2, v3) keep catalog accuracy at 98.7–99.1 % and balance the real-world errors (macro-F1 0.72 → 0.75), but real-world accuracy stays at 75 %. The domain gap remains the main open problem."));
