@@ -8,8 +8,21 @@ It compares a simple CNN baseline against **ConvNeXt-Tiny** (transfer learning).
 | Resource | Link |
 |---|---|
 | Colab notebook (app + training) | [Open in Colab](https://colab.research.google.com/drive/1AKU5sftyO1XpXhpPCqnWl0lzfOAZEaMc?usp=sharing) |
-| Demo video | _TODO: video link_ |
-| Report (PDF) | `report/` |
+| Demo video | [Google Drive folder](https://drive.google.com/drive/folders/1bbq25MwW8DvBIzF6LCfoBJexVg46V8Jh?usp=sharing) |
+| Report (PDF) | [report/A2_Report.pdf](report/A2_Report.pdf) |
+
+**Author:** Kurmantayev Ali, SE-2431
+
+### Real-world test (20 own phone photos, flat-lay)
+
+| Model | Catalog test acc | Real-world acc | Real-world macro-F1 |
+|---|---|---|---|
+| ConvNeXt | 0.982 | 0.75 | 0.72 |
+| ConvNeXt + syn | 0.987 | 0.60 | 0.56 |
+| ConvNeXt v2 (+ flat-lay synthetic, strong aug) | 0.991 | 0.75 | 0.73 |
+| **ConvNeXt v3** (clean flat-lay prompts) | 0.987 | 0.75 | **0.75** |
+
+There is a gap of about 24 pp between catalog and real-world accuracy, so the domain gap is the main open problem (see report, Section 6.1).
 
 ## Pipeline
 

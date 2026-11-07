@@ -10,6 +10,15 @@ const OUT = process.argv[2];
 const FONT = "Arial";
 const W = 9026; // A4 content width in DXA with 1" margins
 
+const V3 = {
+  test_acc: "0.987", test_f1: "0.987", rw_acc: "0.75", rw_f1: "**0.75**",
+  fig: "realworld_comparison",
+  figCaption: "Figure 9. Confusion matrices on the 20 real-world phone photos for the four ConvNeXt versions.",
+  discussion: "**Result.** Catalog accuracy stays at 98–99 % for every version, while real-world accuracy stays at about 0.75. The errors move between classes instead of disappearing. v2 fixes the T-shirt (topwear 4/4) but breaks the track pants (bottomwear 1/4 → underwear). v3 fixes the pants (4/4) but now sends the T-shirt and boxer briefs to bottomwear. v3 is the most balanced model (highest macro-F1 0.75, no class below 2/4), so it is the final model. The real lesson is the gap of about 24 pp between in-distribution and real-world accuracy. Catalog photos plus synthetic images cannot fully replace real flat-lay photos, and each of our test classes holds a single object, so one hard object decides the whole class. The most effective next step is to collect a few hundred real phone photos of varied garments, not to generate more synthetic data.",
+};
+const STUDENT = "Kurmantayev Ali, group SE-2431";
+const VIDEO = "https://drive.google.com/drive/folders/1bbq25MwW8DvBIzF6LCfoBJexVg46V8Jh?usp=sharing"; // Drive folder link
+
 const LINKS = {
   github: "https://github.com/AlleSH419/clothing-classification-A2",
   colab: "https://colab.research.google.com/drive/1AKU5sftyO1XpXhpPCqnWl0lzfOAZEaMc?usp=sharing",
@@ -69,13 +78,13 @@ const c = [];
 
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: "Astana IT University · Computer Vision · Assignment 2", size: 20, color: "555555" })] }));
 c.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER, children: [new TextRun("Level-Up Clothing Classification: ConvNeXt, SD-Turbo Synthetic Data and a Grad-CAM Demo")] }));
-c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "Student: [Full name], group [Group]   ·   Instructor: Nurym Kaiyrkhan", size: 21 })] }));
+c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "Student: " + STUDENT + "   ·   Instructor: Nurym Kaiyrkhan", size: 21 })] }));
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "GitHub: ", bold: true, size: 20 }), link(LINKS.github, LINKS.github)] }));
 c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: "Colab notebook + app: ", bold: true, size: 20 }), link("Open in Google Colab", LINKS.colab)] }));
-c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "1F4E79", space: 6 } }, children: [new TextRun({ text: "Demo video: ", bold: true, size: 20 }), new TextRun({ text: "[insert video link]", size: 20, color: "C00000" })] }));
+c.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "1F4E79", space: 6 } }, children: [new TextRun({ text: "Demo video: ", bold: true, size: 20 }), VIDEO ? link("Google Drive folder", VIDEO) : new TextRun({ text: "[insert video link]", size: 20, color: "C00000" })] }));
 
 c.push(H2("Abstract"));
-c.push(P("We upgrade an Assignment 1-style clothing classifier (5 classes: bottomwear, footwear, headwear, topwear, underwear) with two state-of-the-art components: an ImageNet-pretrained **ConvNeXt-Tiny** backbone and **SD-Turbo** text-to-image synthetic data for the weakest classes. On a held-out test set of 225 real images, ConvNeXt raises accuracy from **80.9 % to 98.2 %** (macro-F1 0.802 → 0.982). Adding 200 synthetic images raises it further to **98.7 %** (macro-F1 0.987), but slightly hurts the from-scratch CNN. We ship an interactive Gradio app (upload or camera → prediction → Grad-CAM → latency, 10–16 ms on a T4). Grad-CAM and a real-world phone test reveal a dataset shortcut that the test metric hides."));
+c.push(P("We upgrade an Assignment 1-style clothing classifier (5 classes: bottomwear, footwear, headwear, topwear, underwear) with two state-of-the-art components: an ImageNet-pretrained **ConvNeXt-Tiny** backbone and **SD-Turbo** text-to-image synthetic data for the weakest classes. On a held-out test set of 225 real images, ConvNeXt raises accuracy from **80.9 % to 98.2 %** (macro-F1 0.802 → 0.982). Adding 200 synthetic images raises it further to **98.7 %** (macro-F1 0.987), but slightly hurts the from-scratch CNN. We ship an interactive Gradio app (upload or camera → prediction → Grad-CAM → latency, 10–16 ms on a T4). Grad-CAM and a real-world phone test reveal a dataset shortcut that the test metric hides. Two further iterations with flat-lay synthetic data (v2, v3) keep catalog accuracy at 98.7–99.1 % and balance the real-world errors (macro-F1 0.72 → 0.75), but real-world accuracy stays at 75 %. The domain gap remains the main open problem."));
 
 // 1
 c.push(H1("1. Introduction"));
@@ -171,10 +180,28 @@ c.push(table([
   ["Knit beanie", "headwear 100 %", "yes", "rounded side contour"],
   ["T-shirt (flat)", "underwear 98 %", "**no** (topwear)", "small patch on the chest"],
 ], [2226, 2300, 1900, 2600]));
-c.push(Caption("Table 5. Out-of-distribution check in the app."));
+c.push(Caption("Table 5. Out-of-distribution check in the app (model convnext_tiny_syn)."));
 c.push(img("app_tshirt_fail", 520));
 c.push(Caption("Figure 8. Failure case: a flat-lying T-shirt is classified as underwear."));
 c.push(P("The T-shirt failure confirms the shortcut seen in Section 5. In the catalog, almost every topwear image shows the garment **worn by a model**, while flat-lying cotton items without a person are mostly undershirts and vests from Innerwear. The model learned \"flat cotton garment with no person → underwear\" instead of the T-shirt's shape. The 98.7 % test accuracy therefore measures in-distribution performance only. Possible fixes: add flat-lay topwear photos, segment the garment (SAM-style mask) and remove the person and background before classification, and use stronger crop and background-replacement augmentation."));
+
+// 6.1 iteration
+c.push(H2("6.1 Fixing the shortcut: flat-lay synthetic data (v2, v3)"));
+c.push(P("To act on this finding we built a small **real-world test set**: 20 phone photos (4 per class) of garments lying flat on carpets, floors and bedding, used **only for evaluation**. Caveat: apart from footwear, each class is one physical item photographed 4 times on different backgrounds, so the set holds about 8 distinct objects. Every error repeats across correlated photos, so these numbers are indicative, not statistically strong."));
+c.push(B("**v2:** +80 SD-Turbo **flat-lay** images for **every** class (8 item types × 10 colors × 8 indoor backgrounds; generating them for topwear only would create a new \"carpet → topwear\" shortcut) plus stronger augmentation (RandomResizedCrop 0.6–1.0, rotation ±20°, grayscale 10 %)."));
+c.push(B("**v3:** error analysis of v2 showed that ambiguous prompts (\"white undershirt\", \"boxer shorts\" in underwear; \"shorts\", \"leggings\" in bottomwear) overlap visually across classes. We regenerated those two classes with unambiguous items and softened the crop (scale 0.75–1.0)."));
+c.push(table([
+  ["Model", "Catalog test acc", "Catalog macro-F1", "Real-world acc (n=20)", "Real-world macro-F1"],
+  ["ConvNeXt", "0.982", "0.982", "0.75", "0.72"],
+  ["ConvNeXt + syn", "0.987", "0.987", "0.60", "0.56"],
+  ["ConvNeXt v2 (flat-lay)", "0.991", "0.991", "0.75", "0.73"],
+  ["ConvNeXt v3 (clean prompts)", V3.test_acc, V3.test_f1, V3.rw_acc, V3.rw_f1],
+], [2626, 1550, 1550, 1700, 1600]));
+c.push(Caption("Table 6. In-distribution (catalog) vs real-world (own phone photos) performance."));
+c.push(img(V3.fig, 600));
+c.push(Caption(V3.figCaption));
+c.push(P(V3.discussion));
+c.push(P("**Methodological note.** v3 was designed after looking at v2's errors on the same 20 photos, so its real-world score is optimistically biased. A fresh, larger photo set would be needed for an unbiased estimate."));
 
 // 7
 c.push(H1("7. Ethics and Limitations"));
@@ -194,7 +221,7 @@ c.push(P("Environment: Python 3.13, torch 2.14 (CUDA 13), timm, diffusers, grad-
 
 // 9
 c.push(H1("9. Conclusion"));
-c.push(P("Replacing the A1-style CNN with a pretrained ConvNeXt-Tiny is by far the most effective upgrade (+17 pp accuracy). One-step SD-Turbo synthetic data is cheap and gives a small further gain for the pretrained model on the targeted classes, but it does not help a model trained from scratch. Grad-CAM combined with a simple real-world test exposed a \"person visible → topwear\" shortcut that a 98.7 % test score hides. Garment segmentation before classification and flat-lay training images are the most promising next steps."));
+c.push(P("Replacing the A1-style CNN with a pretrained ConvNeXt-Tiny is by far the most effective upgrade (+17 pp accuracy). One-step SD-Turbo synthetic data is cheap and gives a small further gain for the pretrained model on the targeted classes, but it does not help a model trained from scratch. Grad-CAM combined with a simple real-world test exposed a \"person visible → topwear\" shortcut that a 98.7 % test score hides. Two iterations of flat-lay synthetic data balanced the real-world errors (macro-F1 0.75) but did not close the ~24 pp gap between catalog and real-world accuracy. Real flat-lay photos and garment segmentation before classification are the most promising next steps."));
 
 // refs
 c.push(H1("References"));
